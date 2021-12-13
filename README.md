@@ -3,7 +3,7 @@ We are going to perform a time-series analysis on the data with respect to the w
 
 We will be dividing the dataset in 4:1 ratio, where we will be using the first part for forecasting the data and the other part(20% of the dataset) will be used to check the accuracy of the forecasted data. We will also be forecasting 10 data points from the future where the actual data is not available.
 
-The accuracy of the forecast can be measured by using methods which determine the forecasting errors. We will be using MAD,MSE and MAPE methods on our dataset in order to check the accuracy of our forecast.
+The accuracy of the forecast can be measured by using methods which determine the forecasting errors. We will be using MAPE methods on our dataset in order to check the accuracy of our forecast.
 
 Our dataset consists of 1826 rows and 4 variable columns(Date, item code, store code and sales).It is the 4 years sales data of Walmart of an item. We will try to predict the sales of the item in this project.
 
