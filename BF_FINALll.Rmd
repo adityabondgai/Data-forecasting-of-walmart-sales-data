@@ -1,0 +1,253 @@
+---
+title: "BF_WALMART"
+output:
+  html_notebook: default
+  word_document: default
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+#importing fpp,fpp2 packages
+library(fpp2)
+
+#Name of the data
+BF_AGG 
+
+#plotting a time series graph
+
+```{r}
+bf.ts <- ts(bf$Weekly_Sales ,start=c(2010,05), end=c(2012,43), frequency=52)
+plot(bf.ts)
+summary(bf.ts)
+```
+#Decomposition Method
+```{r}
+
+decomp <- stl(bf.ts,s.window ="periodic")
+plot(decomp)
+decomp_sesadj <- seasadj(decomp)
+plot(decomp_sesadj)
+plot(bf.ts)
+
+lines(decomp_sesadj,col="Red")
+```
+
+
+
+#average forecasting model
+
+
+```{r}
+meann <- meanf(bf.data, 30)
+plot(meann)
+
+#Accuracy MAPE = 5.713734
+accuracy(meann)
+
+#fitted and residual
+lines(meann$fitted, col="red")
+lines(meann$residuals, col="blue")
+plot(meann$fitted,meann$residuals,xy.labels = FALSE,xy.lines = FALSE)
+plot(meann)
+
+```
+
+
+#Moving Averages
+```{r}
+#Moving Average 
+MA3_forecast <- ma(bf.ts,order=3)
+MA6_forecast <- ma(bf.ts,order=6)
+MA12_forecast <- ma(bf.ts,order=12)
+MA20_forecast <- ma(bf.ts,order=20)
+
+MA3 <- forecast(MA3_forecast,h= 52)
+plot(MA3)
+plot(MA3_forecast, col="Red", main="Graph of Moving average with order 3" )
+plot(MA6_forecast, col="Blue", main="Graph of Moving average with order 6")
+plot(MA12_forecast, col="Green", main="Graph of Moving average with order 12")
+plot(MA20_forecast, col="black", main="Graph of Moving average with order 110")
+
+plot(bf.ts, main="Graph of Time series graph with Moving avg plot with order 3,6,12")
+lines(MA3_forecast, col='Red')
+lines(MA6_forecast, col='Blue')
+lines(MA12_forecast, col='Green')
+lines(MA20_forecast, col='Black')
+accuracy(MA3)
+
+checkresiduals(MA3)
+
+
+```
+
+
+#Naive Model
+
+```{r}
+naivem <- naive(bf.data, 10)
+plot(naivem)
+
+#Accuracy MAPE= 6.365846
+accuracy(naivem)
+
+#Fitted and Residual
+lines(naivem$fitted, col="red")
+lines(naivem$residuals, col="blue")
+plot(naivem$fitted,naivem$residuals,xy.labels = FALSE,xy.lines = FALSE)
+plot(naivem)
+checkresiduals(MA3)
+
+```
+
+
+#Seasonal naive model
+```{r}
+snaivem <- snaive(bf.data,h=30)
+plot(snaivem)
+
+#Accuracy MAPE = 3.017517
+accuracy(snaivem)
+
+#fitted and residual
+
+lines(snaivem$fitted, col="red")
+lines(snaivem$residuals, col="blue")
+plot(snaivem$fitted,snaivem$residuals,xy.labels = FALSE,xy.lines = FALSE)
+plot(snaivem)
+checkresiduals(M3)
+```
+
+
+
+
+
+# RWF model
+```{r}
+
+driftm <- rwf(bf.data, h=10,drift=T)
+plot(driftm)
+
+#Accuracy  MAPE = 6.35664
+accuracy(driftm)
+
+
+#fitted and residual
+lines(driftm$fitted, col="red")
+lines(driftm$residuals, col="blue")
+plot(driftm$fitted,driftm$residuals,xy.labels = FALSE,xy.lines = FALSE)
+
+plot(driftm)
+
+```
+
+
+#HOLT'S WINTER
+```{r}
+##Holtwinters 
+bf.ts_hw <- HoltWinters(bf.ts)
+bf.ts_hw
+attributes(bf.ts_hw)
+bf.ts_hw$SSE
+bf.ts_hw$coefficients
+forecast_hw <- forecast(bf.ts_hw,h=12)
+forecast_hw
+plot(forecast_hw)
+checkresiduals(bf.ts_hw)
+accuracy(forecast_hw)
+```
+
+
+
+
+# Fit model
+
+```{r}
+fit <- forecast(bf.data, h=10)
+plot(fit)
+fit
+#Accuracy MAPE = 6.356664
+
+
+accuracy(driftm)
+
+```
+
+```{r}
+Acf(bf.data)
+```
+#forcasting for seasonality
+```{r}
+stlfm <- stlf(bf.data,h=20)
+plot(stlfm)
+accuracy(stlfm)
+stlfm
+checkresiduals(stlfm)
+```
+#Plotting all the models on the same graph
+```{r}
+plot(meann, main="Forecasts for Weekly Sales")
+lines(naivem$mean)
+lines(driftm$mean, col=2)
+lines(snaivem$mean, col="Green")
+lines(bf.data)
+```
+
+
+# Arima Model 
+EC_Arima <-  auto.arima(ts1, trace = TRUE, stepwise = FALSE, ic = c("bic"))
+EC_Arima
+plot(EC_Arima)
+EC_Arima <-  auto.arima(FP_US_TS_recent, trace = TRUE, stepwise = FALSE, ic = c("bic"))
+EC_Arima
+EC_Arima_Forecast <-  forecast(EC_Arima, h = 3)
+EC_Arima_Forecast
+```{r}
+
+plot(EC_Arima)
+plot(EC_Arima_Forecast)
+
+#Accuracy MAPE = 1.720222
+accuracy(EC_Arima_Forecast)
+checkresiduals(EC_Arima_Forecast)
+
+```
+
+#Regression Analysis
+```{r}
+#Model1
+model1 <- lm(Weekly_Sales ~ Monthly , bf)
+summary(model1)
+plot(model1)
+
+#Rsquared - 0.1289
+```
+
+```{r} 
+#Model2
+model2 <- lm(Weekly_Sales ~ Monthly + Temperature, bf)
+summary(model2)
+plot(model2)
+
+#Rsquared = 0.1835
+
+```
+
+```{r}
+#Model3
+model3 <- lm(Weekly_Sales ~ Monthly + Temperature + Fuel_Price, bf)
+summary(model3)
+plot(model3)
+
+#Rsquared - 0.195
+```
+
+It has very less multiple Rsquared value only for fuel and temperature, but we can see from the above graph that temperature and fuel prices have some relation with the weekly sales data even though it is very less. It is not sufficient to predict this data using regression.
+In addition if we check the weekly sales with respect to the store size. It should show positive correlation.
+
+```{r}
+model4 <- lm(Weekly_Sales ~ Size, stores)
+summary(model4)
+plot(model4)
+
+```
+
